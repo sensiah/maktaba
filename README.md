@@ -22,5 +22,5 @@ python manage.py runserver
 - Django Admin:  http://127.0.0.1:8000/admin/
 
 ## الدخول
-- مدير:    admin / admin123
-- صندوق:   cashier / cashier123
+- مدير:    admin / 
+- صندوق: / 
