@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+{% block title %}الطلبات الإلكترونية{% endblock %}
+{% block page_title %}الطلبات الإلكترونية{% endblock %}
+
+{% block content %}
+{% if pending_count %}
+<div class="alert alert-warning">⚠️ يوجد {{ pending_count }} طلب جديد في انتظار التأكيد!</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-body" style="padding-bottom:0;">
+    <form method="get" class="search-bar">
+      <select name="status" class="form-control" style="width:200px;">
+        <option value="">كل الحالات</option>
+        <option value="pending"    {% if status_filter == 'pending' %}selected{% endif %}>في الانتظار</option>
+        <option value="confirmed"  {% if status_filter == 'confirmed' %}selected{% endif %}>مؤكد</option>
+        <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>قيد التحضير</option>
+        <option value="shipped"    {% if status_filter == 'shipped' %}selected{% endif %}>تم الشحن</option>
+        <option value="delivered"  {% if status_filter == 'delivered' %}selected{% endif %}>تم التسليم</option>
+        <option value="cancelled"  {% if status_filter == 'cancelled' %}selected{% endif %}>ملغى</option>
+      </select>
+      <button class="btn btn-secondary" type="submit">تصفية</button>
+      {% if status_filter %}<a href="{% url 'online_order_list' %}" class="btn btn-secondary">إلغاء</a>{% endif %}
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>رمز التتبع</th><th>الزبون</th><th>الهاتف</th><th>الحي</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><a href="{% url 'online_order_detail' order.pk %}" style="color:var(--accent);font-weight:800;font-family:monospace;">{{ order.tracking_code }}</a></td>
+          <td><strong>{{ order.customer_name }}</strong></td>
+          <td>{{ order.customer_phone }}</td>
+          <td>{{ order.neighbourhood }}</td>
+          <td><strong>{{ order.total_amount|floatformat:0 }} د.ج</strong></td>
+          <td>
+            {% if order.status == 'pending' %}<span class="badge badge-warning">في الانتظار</span>
+            {% elif order.status == 'confirmed' %}<span class="badge badge-blue">مؤكد</span>
+            {% elif order.status == 'processing' %}<span class="badge badge-blue">قيد التحضير</span>
+            {% elif order.status == 'shipped' %}<span class="badge badge-success">تم الشحن</span>
+            {% elif order.status == 'delivered' %}<span class="badge badge-success">تم التسليم</span>
+            {% else %}<span class="badge badge-danger">ملغى</span>{% endif %}
+          </td>
+          <td style="color:var(--text-muted);font-size:12px;">{{ order.created_at|date:"Y/m/d H:i" }}</td>
+          <td><a href="{% url 'online_order_detail' order.pk %}" class="btn btn-secondary btn-sm">عرض</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8"><div class="empty-state"><div class="icon">📦</div><h3>لا توجد طلبات إلكترونية</h3></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>.form-control{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;font-family:inherit;}</style>
+{% endblock %}

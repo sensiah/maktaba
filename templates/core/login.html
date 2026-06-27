@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول — متجر القرطاسية</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Cairo', system-ui, sans-serif; background: #f7f8fa; display: flex; align-items: center; justify-content: center; min-height: 100vh; direction: rtl; }
+    .login-wrapper { width: 100%; max-width: 400px; padding: 20px; }
+    .login-brand { text-align: center; margin-bottom: 32px; }
+    .login-brand h1 { font-size: 28px; font-weight: 800; color: #1a1f2e; }
+    .login-brand h1 span { color: #3b5bdb; }
+    .login-brand p { color: #6b7280; font-size: 14px; margin-top: 6px; }
+    .login-card { background: white; border-radius: 16px; padding: 36px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 13px; font-weight: 700; color: #1a1f2e; margin-bottom: 6px; }
+    input { width: 100%; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; font-family: inherit; text-align: right; }
+    input:focus { border-color: #3b5bdb; box-shadow: 0 0 0 3px rgba(59,91,219,0.1); }
+    .btn-login { width: 100%; padding: 11px; background: #3b5bdb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 8px; font-family: inherit; }
+    .btn-login:hover { background: #2f4ac5; }
+    .error { background: #fee2e2; color: #991b1b; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-brand">
+      <h1>متجر <span>القرطاسية</span></h1>
+      <p>نظام إدارة المتجر</p>
+    </div>
+    <div class="login-card">
+      {% if form.errors %}
+        <div class="error">اسم المستخدم أو كلمة المرور غير صحيحة. حاول مجدداً.</div>
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>اسم المستخدم</label>
+          <input type="text" name="username" autofocus placeholder="أدخل اسم المستخدم">
+        </div>
+        <div class="form-group">
+          <label>كلمة المرور</label>
+          <input type="password" name="password" placeholder="أدخل كلمة المرور">
+        </div>
+        <button type="submit" class="btn-login">دخول</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
