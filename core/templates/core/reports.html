@@ -1,0 +1,97 @@
+{% extends 'core/base.html' %}
+{% block title %}التقارير{% endblock %}
+{% block page_title %}التقارير والإحصائيات{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card green">
+    <div class="stat-label">إجمالي الإيرادات</div>
+    <div class="stat-value">{{ total_revenue|floatformat:0 }} د.ج</div>
+    <div class="stat-sub">جميع المبيعات المكتملة</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-label">إيرادات هذا الشهر</div>
+    <div class="stat-value">{{ month_revenue|floatformat:0 }} د.ج</div>
+    <div class="stat-sub">{{ month_orders }} طلب هذا الشهر</div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-label">إجمالي الطلبات</div>
+    <div class="stat-value">{{ total_orders }}</div>
+    <div class="stat-sub">طلب مكتمل</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-label">متوسط قيمة الطلب</div>
+    <div class="stat-value">{% if total_orders %}{{ total_revenue|floatformat:0 }}{% else %}0{% endif %} د.ج</div>
+    <div class="stat-sub">لكل طلب مكتمل</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+  <div class="card">
+    <div class="card-header"><div class="card-title">الإيرادات الشهرية</div></div>
+    <div class="card-body"><canvas id="monthlyChart" height="200"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">⚠️ منتجات ذات مخزون منخفض</div></div>
+    <div class="table-wrap" style="max-height:280px;overflow-y:auto;">
+      <table>
+        <thead><tr><th>المنتج</th><th>المخزون</th><th>الحد الأدنى</th></tr></thead>
+        <tbody>
+          {% for p in low_stock_products %}
+          <tr>
+            <td>{{ p.name }}</td>
+            <td><span class="stock-low">{{ p.stock_quantity }}</span></td>
+            <td>{{ p.low_stock_threshold }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" style="text-align:center;padding:30px;color:var(--text-muted);">✅ جميع المنتجات متوفرة</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">أكثر المنتجات مبيعاً</div></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>المنتج</th><th>الكمية المباعة</th></tr></thead>
+      <tbody>
+        {% for p in top_products %}
+        <tr>
+          <td style="color:var(--text-muted);font-weight:700;">{{ forloop.counter }}</td>
+          <td><strong>{{ p.product__name }}</strong></td>
+          <td>{{ p.total_sold }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" style="text-align:center;padding:40px;color:var(--text-muted);">لا توجد بيانات مبيعات بعد.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const data = {{ monthly_sales|safe }};
+  const canvas = document.getElementById('monthlyChart');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.offsetWidth || 400; const h = 200;
+  canvas.width = w; canvas.height = h;
+  const values = data.map(d => d.revenue);
+  const labels = data.map(d => d.month);
+  const max = Math.max(...values, 1);
+  const barW = Math.max(20,(w-60)/labels.length-8);
+  const chartH = h - 40;
+  ctx.clearRect(0,0,w,h);
+  labels.forEach((label,i) => {
+    const x = 30 + i*((w-60)/labels.length);
+    const barH = Math.max(2,(values[i]/max)*chartH);
+    const y = chartH - barH + 10;
+    ctx.fillStyle='#3b5bdb'; ctx.beginPath(); ctx.roundRect(x,y,barW,barH,[4,4,0,0]); ctx.fill();
+    ctx.fillStyle='#6b7280'; ctx.font='10px Cairo,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(label, x+barW/2, h-5);
+    if (values[i]>0) { ctx.fillStyle='#1a1f2e'; ctx.font='bold 10px Cairo,sans-serif'; ctx.fillText(values[i].toFixed(0), x+barW/2, y-4); }
+  });
+</script>
+{% endblock %}

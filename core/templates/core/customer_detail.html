@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ customer.name }}{% endblock %}
+{% block page_title %}{{ customer.name }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb"><span>{{ customer.name }}</span><span>›</span><a href="{% url 'customer_list' %}">الزبائن</a></div>
+<div style="display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;">
+  <div class="card">
+    <div class="card-header"><div class="card-title">سجل المشتريات</div><span style="font-size:13px;color:var(--text-muted);">{{ orders.count }} طلبات</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>المبلغ</th><th>الدفع</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td><strong>#{{ order.id }}</strong></td>
+            <td><strong>{{ order.final_amount|floatformat:0 }} د.ج</strong></td>
+            <td>{% if order.payment_method == 'cash' %}نقداً{% elif order.payment_method == 'card' %}بطاقة{% else %}تحويل{% endif %}</td>
+            <td>{% if order.status == 'completed' %}<span class="badge badge-success">مكتمل</span>{% else %}<span class="badge badge-neutral">{{ order.get_status_display }}</span>{% endif %}</td>
+            <td style="color:var(--text-muted);font-size:12px;">{{ order.created_at|date:"Y/m/d" }}</td>
+            <td><a href="{% url 'order_detail' order.pk %}" class="btn btn-sm btn-secondary">عرض</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">لا توجد طلبات بعد.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">معلومات الزبون</div><a href="{% url 'customer_edit' customer.pk %}" class="btn btn-secondary btn-sm">تعديل</a></div>
+    <div class="card-body">
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;">
+        <div><span style="color:var(--text-muted);">الهاتف</span><div style="font-weight:700;margin-top:2px;">{{ customer.phone|default:"—" }}</div></div>
+        <div><span style="color:var(--text-muted);">البريد</span><div style="font-weight:700;margin-top:2px;">{{ customer.email|default:"—" }}</div></div>
+        <div><span style="color:var(--text-muted);">العنوان</span><div style="margin-top:2px;">{{ customer.address|default:"—" }}</div></div>
+        <div><span style="color:var(--text-muted);">إجمالي المشتريات</span><div style="font-size:22px;font-weight:800;color:var(--accent);margin-top:2px;">{{ customer.total_purchases|floatformat:0 }} د.ج</div></div>
+        <div><span style="color:var(--text-muted);">تاريخ الانضمام</span><div style="font-weight:700;margin-top:2px;">{{ customer.created_at|date:"Y/m/d" }}</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+{% block title %}الطلبات{% endblock %}
+{% block page_title %}الطلبات{% endblock %}
+{% block topbar_actions %}<a href="{% url 'order_create' %}" class="btn btn-primary">+ بيع جديد</a>{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body" style="padding-bottom:0;">
+    <form method="get" class="search-bar">
+      <select name="status" class="form-control" style="width:180px;">
+        <option value="">كل الحالات</option>
+        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>مكتمل</option>
+        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>ملغى</option>
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>معلق</option>
+      </select>
+      <button class="btn btn-secondary" type="submit">تصفية</button>
+      {% if status_filter %}<a href="{% url 'order_list' %}" class="btn btn-secondary">إلغاء</a>{% endif %}
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>الزبون</th><th>أمين الصندوق</th><th>المنتجات</th><th>المبلغ</th><th>الدفع</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><a href="{% url 'order_detail' order.pk %}" style="color:var(--accent);font-weight:700;">#{{ order.id }}</a></td>
+          <td>{{ order.customer.name|default:"زبون عادي" }}</td>
+          <td>{{ order.cashier.username|default:"—" }}</td>
+          <td>{{ order.items.count }}</td>
+          <td><strong>{{ order.final_amount|floatformat:0 }} د.ج</strong></td>
+          <td>{% if order.payment_method == 'cash' %}نقداً{% elif order.payment_method == 'card' %}بطاقة{% else %}تحويل{% endif %}</td>
+          <td>
+            {% if order.status == 'completed' %}<span class="badge badge-success">مكتمل</span>
+            {% elif order.status == 'cancelled' %}<span class="badge badge-danger">ملغى</span>
+            {% elif order.status == 'refunded' %}<span class="badge badge-warning">مسترجع</span>
+            {% else %}<span class="badge badge-neutral">معلق</span>{% endif %}
+          </td>
+          <td style="color:var(--text-muted);font-size:12px;">{{ order.created_at|date:"Y/m/d H:i" }}</td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <a href="{% url 'order_detail' order.pk %}" class="btn btn-sm btn-secondary">عرض</a>
+              {% if user.is_staff and order.status == 'completed' %}
+              <a href="{% url 'order_cancel' order.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('إلغاء الطلب واسترجاع المخزون؟')">إلغاء</a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9"><div class="empty-state"><div class="icon">📋</div><h3>لا توجد طلبات</h3></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>.form-control{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;font-family:inherit;text-align:right;}</style>
+{% endblock %}
