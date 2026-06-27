@@ -1,0 +1,181 @@
+{% extends 'shop/base.html' %}
+{% block title %}{{ product.name }} — متجر القرطاسية{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Breadcrumb -->
+  <div style="display:flex;gap:8px;font-size:13px;color:var(--text-muted);margin-bottom:24px;align-items:center;">
+    <a href="{% url 'shop_home' %}" style="color:var(--primary);">الرئيسية</a> ‹
+    <a href="{% url 'shop_catalog' %}" style="color:var(--primary);">المنتجات</a> ‹
+    <span>{{ product.name }}</span>
+  </div>
+
+  <!-- Product main -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:48px;">
+    <!-- Image -->
+    <div style="background:linear-gradient(135deg,#f0f4ff,#e8edff);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:120px;min-height:360px;border:1px solid var(--border);">
+      {% if 'قلم' in product.name or 'Pen' in product.name %}🖊
+      {% elif 'دفتر' in product.name or 'Note' in product.name %}📓
+      {% elif 'رصاص' in product.name or 'Pencil' in product.name %}✏️
+      {% elif 'لون' in product.name or 'Color' in product.name or 'Crayon' in product.name or 'Pastel' in product.name %}🎨
+      {% elif 'مقص' in product.name or 'Sciss' in product.name %}✂️
+      {% elif 'آلة' in product.name or 'Calc' in product.name %}🔢
+      {% elif 'غراء' in product.name or 'Glue' in product.name or 'Tape' in product.name %}🧲
+      {% elif 'ملف' in product.name or 'Folder' in product.name %}📁
+      {% elif 'مجلد' in product.name or 'Binder' in product.name %}📚
+      {% elif 'ورق' in product.name or 'Paper' in product.name %}📄
+      {% elif 'محفظة' in product.name or 'Case' in product.name %}🎒
+      {% elif 'ممحاة' in product.name or 'Eraser' in product.name %}⬜
+      {% else %}📦{% endif %}
+    </div>
+
+    <!-- Info -->
+    <div>
+      <div style="font-size:13px;color:var(--primary);font-weight:800;margin-bottom:8px;">{{ product.category.name|default:"قرطاسية" }}</div>
+      <h1 style="font-size:28px;font-weight:900;line-height:1.3;margin-bottom:12px;">{{ product.name }}</h1>
+
+      <!-- Rating -->
+      {% if avg_rating %}
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+        <div style="color:#f59e0b;font-size:18px;">{% for i in "12345" %}{% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+        <span style="font-size:14px;color:var(--text-muted);">({{ reviews|length }} تقييم)</span>
+      </div>
+      {% endif %}
+
+      <div style="font-size:36px;font-weight:900;color:var(--primary);margin-bottom:20px;">{{ product.price|floatformat:0 }} <span style="font-size:18px;">د.ج</span></div>
+
+      {% if product.description %}
+      <p style="font-size:15px;color:var(--text-muted);line-height:1.8;margin-bottom:24px;">{{ product.description }}</p>
+      {% endif %}
+
+      <!-- Stock -->
+      {% if product.stock_quantity > 0 %}
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block;"></span>
+        <span style="font-size:14px;font-weight:700;color:var(--success);">متوفر في المخزون ({{ product.stock_quantity }} قطعة)</span>
+      </div>
+      {% else %}
+      <div style="color:var(--danger);font-weight:800;margin-bottom:24px;">غير متوفر حالياً</div>
+      {% endif %}
+
+      <!-- Add to cart -->
+      {% if product.stock_quantity > 0 %}
+      <form method="post" action="{% url 'cart_add' product.pk %}" style="display:flex;gap:12px;align-items:center;margin-bottom:20px;">
+        {% csrf_token %}
+        <div style="display:flex;align-items:center;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;">
+          <button type="button" onclick="changeQty(-1)" style="background:none;border:none;padding:10px 14px;font-size:18px;cursor:pointer;color:var(--text);">−</button>
+          <input type="number" name="qty" id="qty" value="1" min="1" max="{{ product.stock_quantity }}" style="width:50px;border:none;text-align:center;font-size:16px;font-weight:800;font-family:inherit;outline:none;">
+          <button type="button" onclick="changeQty(1)" style="background:none;border:none;padding:10px 14px;font-size:18px;cursor:pointer;color:var(--text);">+</button>
+        </div>
+        <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;font-size:16px;padding:13px;">🛒 أضف للسلة</button>
+      </form>
+      {% endif %}
+
+      <!-- SKU -->
+      <div style="font-size:12px;color:var(--text-light);">رمز المنتج: {{ product.sku }}</div>
+
+      <!-- Delivery info -->
+      <div style="background:var(--primary-light);border-radius:10px;padding:16px;margin-top:20px;">
+        <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">🚚 معلومات التوصيل</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+          • الدفع عند الاستلام (الدفع نقداً)<br>
+          • التوصيل داخل متليلي الشعانبة فقط<br>
+          • رسوم التوصيل: 200 د.ج
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div style="margin-bottom:48px;">
+    <div class="section-title">💬 تقييمات العملاء</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+      <!-- Review list -->
+      <div>
+        {% for review in reviews %}
+        <div style="background:white;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-weight:800;">{{ review.name }}</span>
+            <span style="color:#f59e0b;">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+          </div>
+          {% if review.comment %}<p style="font-size:14px;color:var(--text-muted);">{{ review.comment }}</p>{% endif %}
+          <div style="font-size:11px;color:var(--text-light);margin-top:6px;">{{ review.created_at|date:"Y/m/d" }}</div>
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:40px;color:var(--text-muted);">
+          <div style="font-size:40px;margin-bottom:8px;">💬</div>
+          <div style="font-weight:700;">لا توجد تقييمات بعد. كن الأول!</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Add review -->
+      <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:24px;">
+        <div style="font-size:17px;font-weight:900;margin-bottom:18px;">✍️ أضف تقييمك</div>
+        {% for message in messages %}
+        <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group"><label class="form-label">اسمك</label><input type="text" name="name" class="form-control" required placeholder="مثال: محمد"></div>
+          <div class="form-group">
+            <label class="form-label">التقييم</label>
+            <div style="display:flex;gap:8px;">
+              {% for i in "12345" %}
+              <label style="cursor:pointer;font-size:28px;">
+                <input type="radio" name="rating" value="{{ forloop.counter }}" style="display:none;" {% if forloop.counter == 5 %}checked{% endif %}>
+                <span class="star" data-v="{{ forloop.counter }}">★</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">تعليقك (اختياري)</label><textarea name="comment" class="form-control" rows="3" placeholder="شاركنا رأيك..."></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">إرسال التقييم</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related -->
+  {% if related %}
+  <div>
+    <div class="section-title">🛍 منتجات مشابهة</div>
+    <div class="product-grid">
+      {% for p in related %}
+      <div class="product-card">
+        <div class="product-img">
+          {% if 'قلم' in p.name or 'Pen' in p.name %}🖊{% elif 'دفتر' in p.name or 'Note' in p.name %}📓{% elif 'رصاص' in p.name or 'Pencil' in p.name %}✏️{% elif 'لون' in p.name or 'Crayon' in p.name %}🎨{% else %}📦{% endif %}
+        </div>
+        <div class="product-info">
+          <div class="product-name">{{ p.name }}</div>
+          <div class="product-price">{{ p.price|floatformat:0 }} <small>د.ج</small></div>
+          <div class="product-footer">
+            <button class="btn-add" onclick="addToCartAjax({{ p.pk }}, '{{ p.name|escapejs }}')">+ أضف</button>
+            <a href="{% url 'product_detail' p.pk %}" class="btn-view">عرض</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function changeQty(delta) {
+  const input = document.getElementById('qty');
+  const max = parseInt(input.max);
+  let val = parseInt(input.value) + delta;
+  input.value = Math.max(1, Math.min(max, val));
+}
+// Star highlight
+document.querySelectorAll('.star').forEach(star => {
+  star.style.color = '#f59e0b';
+  star.parentElement.addEventListener('change', () => {
+    const v = parseInt(star.dataset.v);
+    const selected = parseInt(star.closest('div').querySelector('input:checked').value);
+    star.style.color = v <= selected ? '#f59e0b' : '#d1d5db';
+  });
+});
+</script>
+{% endblock %}

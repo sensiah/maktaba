@@ -1,0 +1,70 @@
+{% extends 'shop/base.html' %}
+{% block title %}تتبع الطلب — متجر القرطاسية{% endblock %}
+{% block content %}
+<div class="container" style="max-width:640px;">
+  <h1 style="font-size:26px;font-weight:900;margin-bottom:8px;">📦 تتبع طلبك</h1>
+  <p style="color:var(--text-muted);margin-bottom:32px;">أدخل رمز التتبع الذي استلمته عند تأكيد طلبك</p>
+
+  <form method="get" style="display:flex;gap:10px;margin-bottom:32px;">
+    <input type="text" name="code" value="{{ code }}" placeholder="مثال: DZ12345678" class="form-control" style="flex:1;font-size:16px;letter-spacing:1px;" required>
+    <button type="submit" class="btn btn-primary">تتبع</button>
+  </form>
+
+  {% for message in messages %}
+  <div class="alert alert-error">{{ message }}</div>
+  {% endfor %}
+
+  {% if order %}
+  <div style="background:white;border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+    <!-- Header -->
+    <div style="background:var(--primary);color:white;padding:24px 28px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:13px;opacity:.8;margin-bottom:4px;">رمز التتبع</div>
+        <div style="font-size:22px;font-weight:900;letter-spacing:2px;font-family:monospace;">{{ order.tracking_code }}</div>
+      </div>
+      <div style="text-align:left;">
+        <span class="status-badge status-{{ order.status }}" style="font-size:13px;padding:6px 16px;">
+          {{ order.get_status_display }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Status timeline -->
+    <div style="padding:28px;">
+      <div style="margin-bottom:28px;">
+        {% for status_code, status_label in order.STATUS_CHOICES %}
+        {% with steps="pending,confirmed,processing,shipped,delivered" %}
+        <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;">
+          <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+            {% if order.status == status_code %}background:var(--primary);color:white;
+            {% elif status_code == 'cancelled' %}background:#fee2e2;color:#991b1b;
+            {% elif order.status == 'delivered' %}background:var(--success);color:white;
+            {% elif status_code == 'pending' and order.status != 'cancelled' %}background:var(--success);color:white;
+            {% elif status_code == 'confirmed' and order.status in 'confirmed,processing,shipped,delivered' %}background:var(--success);color:white;
+            {% elif status_code == 'processing' and order.status in 'processing,shipped,delivered' %}background:var(--success);color:white;
+            {% elif status_code == 'shipped' and order.status in 'shipped,delivered' %}background:var(--success);color:white;
+            {% else %}background:#f1f5f9;color:var(--text-light);{% endif %}">
+            {% if status_code == 'pending' %}📝{% elif status_code == 'confirmed' %}✅{% elif status_code == 'processing' %}⚙️{% elif status_code == 'shipped' %}🚚{% elif status_code == 'delivered' %}🎉{% else %}❌{% endif %}
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:15px;{% if order.status == status_code %}color:var(--primary);{% endif %}">{{ status_label }}</div>
+          </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+
+      <!-- Order details -->
+      <div style="border-top:1px solid var(--border);padding-top:20px;">
+        <div style="font-size:16px;font-weight:900;margin-bottom:14px;">تفاصيل الطلب</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px;"><span style="color:var(--text-muted);">الاسم</span><strong>{{ order.customer_name }}</strong></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px;"><span style="color:var(--text-muted);">الهاتف</span><strong>{{ order.customer_phone }}</strong></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px;"><span style="color:var(--text-muted);">الولاية</span><strong>{{ order.neighbourhood }}</strong></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px;"><span style="color:var(--text-muted);">تاريخ الطلب</span><strong>{{ order.created_at|date:"Y/m/d" }}</strong></div>
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;border-top:1px solid var(--border);padding-top:12px;margin-top:4px;"><span>المبلغ الإجمالي</span><span style="color:var(--primary);">{{ order.total_amount|floatformat:0 }} د.ج</span></div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

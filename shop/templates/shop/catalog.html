@@ -1,0 +1,77 @@
+{% extends 'shop/base.html' %}
+{% block title %}جميع المنتجات — متجر القرطاسية{% endblock %}
+
+{% block content %}
+<!-- Category bar -->
+<div class="cat-bar">
+  <div class="cat-bar-inner">
+    <a href="{% url 'shop_catalog' %}" class="cat-pill {% if not cat_id %}active{% endif %}">الكل</a>
+    {% for cat in categories %}
+    <a href="{% url 'shop_catalog' %}?cat={{ cat.pk }}{% if q %}&q={{ q }}{% endif %}" class="cat-pill {% if cat_id == cat.pk|stringformat:'s' %}active{% endif %}">{{ cat.name }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="container">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1 style="font-size:22px;font-weight:900;">{% if selected_cat %}{{ selected_cat.name }}{% elif q %}نتائج: "{{ q }}"{% else %}جميع المنتجات{% endif %}</h1>
+      <div style="font-size:14px;color:var(--text-muted);margin-top:4px;">{{ products|length }} منتج متاح</div>
+    </div>
+    <!-- Sort -->
+    <form method="get" style="display:flex;gap:8px;align-items:center;">
+      {% if cat_id %}<input type="hidden" name="cat" value="{{ cat_id }}">{% endif %}
+      {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+      <label style="font-size:13px;font-weight:700;color:var(--text-muted);">ترتيب:</label>
+      <select name="sort" class="form-control" style="width:160px;padding:7px 12px;" onchange="this.form.submit()">
+        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>الأحدث</option>
+        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>السعر: الأقل أولاً</option>
+        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>السعر: الأعلى أولاً</option>
+      </select>
+    </form>
+  </div>
+
+  {% if products %}
+  <div class="product-grid">
+    {% for product in products %}
+    <div class="product-card">
+      <div class="product-img">
+        {% if 'قلم' in product.name or 'Pen' in product.name %}🖊
+        {% elif 'دفتر' in product.name or 'Note' in product.name %}📓
+        {% elif 'رصاص' in product.name or 'Pencil' in product.name %}✏️
+        {% elif 'لون' in product.name or 'Color' in product.name or 'Crayon' in product.name or 'Pastel' in product.name %}🎨
+        {% elif 'مقص' in product.name or 'Sciss' in product.name %}✂️
+        {% elif 'آلة' in product.name or 'Calc' in product.name %}🔢
+        {% elif 'غراء' in product.name or 'Glue' in product.name or 'Tape' in product.name %}🧲
+        {% elif 'ملف' in product.name or 'Folder' in product.name %}📁
+        {% elif 'مجلد' in product.name or 'Binder' in product.name %}📚
+        {% elif 'ورق' in product.name or 'Paper' in product.name %}📄
+        {% elif 'محفظة' in product.name or 'Case' in product.name or 'Pouch' in product.name %}🎒
+        {% elif 'ممحاة' in product.name or 'Eraser' in product.name %}⬜
+        {% elif 'برّاية' in product.name or 'Sharp' in product.name %}🔪
+        {% else %}📦{% endif %}
+        {% if product.stock_quantity < 15 %}<span class="product-badge">كمية محدودة</span>{% endif %}
+      </div>
+      <div class="product-info">
+        <div class="product-cat">{{ product.category.name|default:"قرطاسية" }}</div>
+        <div class="product-name">{{ product.name }}</div>
+        <div class="product-price">{{ product.price|floatformat:0 }} <small>د.ج</small></div>
+        <div class="product-footer">
+          <button class="btn-add" onclick="addToCartAjax({{ product.pk }}, '{{ product.name|escapejs }}')">+ أضف للسلة</button>
+          <a href="{% url 'product_detail' product.pk %}" class="btn-view">التفاصيل</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">🔍</div>
+    <h3>لا توجد منتجات</h3>
+    <p>جرّب البحث بكلمات مختلفة أو تصفح فئة أخرى</p>
+    <a href="{% url 'shop_catalog' %}" class="btn btn-primary" style="margin-top:20px;">عرض جميع المنتجات</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

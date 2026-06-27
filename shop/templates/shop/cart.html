@@ -1,0 +1,83 @@
+{% extends 'shop/base.html' %}
+{% block title %}سلة التسوق — متجر القرطاسية{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 style="font-size:26px;font-weight:900;margin-bottom:28px;">🛒 سلة التسوق</h1>
+
+  {% if items %}
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
+
+    <!-- Cart items -->
+    <div style="background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+      {% for item in items %}
+      <div style="display:flex;align-items:center;gap:16px;padding:20px 24px;border-bottom:1px solid var(--border);">
+        <div style="width:70px;height:70px;background:linear-gradient(135deg,#f0f4ff,#e8edff);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;">
+          {% if 'قلم' in item.product.name or 'Pen' in item.product.name %}🖊
+          {% elif 'دفتر' in item.product.name or 'Note' in item.product.name %}📓
+          {% elif 'رصاص' in item.product.name or 'Pencil' in item.product.name %}✏️
+          {% elif 'لون' in item.product.name or 'Crayon' in item.product.name %}🎨
+          {% elif 'مقص' in item.product.name %}✂️
+          {% elif 'آلة' in item.product.name %}🔢
+          {% else %}📦{% endif %}
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:800;margin-bottom:4px;">{{ item.product.name }}</div>
+          <div style="font-size:14px;color:var(--text-muted);">{{ item.product.price|floatformat:0 }} د.ج للقطعة</div>
+        </div>
+        <!-- Qty controls -->
+        <form method="post" action="{% url 'cart_update' item.product.pk %}" style="display:flex;align-items:center;gap:6px;">
+          {% csrf_token %}
+          <div style="display:flex;align-items:center;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;">
+            <button type="submit" name="qty" value="{{ item.qty|add:'-1' }}" style="background:none;border:none;padding:6px 12px;font-size:16px;cursor:pointer;">−</button>
+            <span style="padding:6px 10px;font-weight:800;font-size:15px;">{{ item.qty }}</span>
+            <button type="submit" name="qty" value="{{ item.qty|add:'1' }}" style="background:none;border:none;padding:6px 12px;font-size:16px;cursor:pointer;">+</button>
+          </div>
+        </form>
+        <div style="font-size:17px;font-weight:900;color:var(--primary);min-width:90px;text-align:left;">{{ item.subtotal|floatformat:0 }} د.ج</div>
+        <a href="{% url 'cart_remove' item.product.pk %}" style="color:var(--danger);font-size:20px;padding:4px 8px;" title="حذف">✕</a>
+      </div>
+      {% endfor %}
+
+      <div style="padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+        <a href="{% url 'shop_catalog' %}" class="btn btn-outline btn-sm">← متابعة التسوق</a>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div style="background:white;border:1px solid var(--border);border-radius:var(--radius);padding:24px;position:sticky;top:88px;">
+      <div style="font-size:18px;font-weight:900;margin-bottom:20px;">ملخص الطلب</div>
+
+      <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:12px;">
+        <span style="color:var(--text-muted);">المجموع الفرعي</span>
+        <span style="font-weight:700;">{{ subtotal|floatformat:0 }} د.ج</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:16px;">
+        <span style="color:var(--text-muted);">رسوم التوصيل</span>
+        <span style="font-weight:700;">{{ delivery_fee }} د.ج</span>
+      </div>
+      <div style="border-top:2px solid var(--border);padding-top:16px;display:flex;justify-content:space-between;font-size:20px;font-weight:900;margin-bottom:24px;">
+        <span>الإجمالي</span>
+        <span style="color:var(--primary);">{{ total|floatformat:0 }} د.ج</span>
+      </div>
+
+      <a href="{% url 'checkout' %}" class="btn btn-primary" style="width:100%;justify-content:center;font-size:16px;padding:14px;border-radius:10px;">
+        إتمام الطلب ←
+      </a>
+
+      <div style="margin-top:16px;background:#f0fdf4;border-radius:8px;padding:12px;font-size:13px;color:#065f46;text-align:center;font-weight:700;">
+        💵 الدفع عند الاستلام — نقداً فقط
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">🛒</div>
+    <h3>سلتك فارغة</h3>
+    <p>أضف بعض المنتجات للبدء في التسوق</p>
+    <a href="{% url 'shop_catalog' %}" class="btn btn-primary" style="margin-top:24px;">تسوق الآن</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

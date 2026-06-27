@@ -1,0 +1,145 @@
+{% extends 'shop/base.html' %}
+{% block title %}متجر القرطاسية — الرئيسية{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div style="background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 50%,#7c3aed 100%);color:white;padding:80px 24px;text-align:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;opacity:.1;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>✏️</text></svg>') repeat;background-size:120px;"></div>
+  <div style="position:relative;max-width:700px;margin:0 auto;">
+    <div style="font-size:14px;font-weight:800;background:rgba(255,255,255,.15);display:inline-block;padding:6px 18px;border-radius:50px;margin-bottom:20px;letter-spacing:.5px;">🚚 توصيل داخل متليلي الشعانبة</div>
+    <h1 style="font-size:48px;font-weight:900;line-height:1.2;margin-bottom:18px;">كل ما تحتاجه<br>من <span style="color:#fbbf24;">قرطاسية</span> في مكان واحد</h1>
+    <p style="font-size:18px;opacity:.85;margin-bottom:36px;line-height:1.7;">أقلام، دفاتر، ألوان، مستلزمات مدرسية ومكتبية بجودة عالية وأسعار مناسبة</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="{% url 'shop_catalog' %}" class="btn btn-primary" style="background:white;color:#1d4ed8;font-size:16px;padding:14px 32px;border-radius:50px;">🛍 تسوق الآن</a>
+      <a href="{% url 'order_track' %}" class="btn btn-outline" style="border-color:white;color:white;font-size:16px;padding:14px 32px;border-radius:50px;">📦 تتبع طلبي</a>
+    </div>
+  </div>
+</div>
+
+<!-- Features bar -->
+<div style="background:white;border-bottom:1px solid var(--border);">
+  <div style="max-width:1200px;margin:0 auto;padding:20px 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:28px;">🚚</span>
+      <div><div style="font-weight:800;font-size:14px;">توصيل سريع</div><div style="font-size:12px;color:var(--text-muted);">داخل متليلي الشعانبة</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:28px;">💰</span>
+      <div><div style="font-weight:800;font-size:14px;">أسعار مناسبة</div><div style="font-size:12px;color:var(--text-muted);">منافسة للجميع</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:28px;">✅</span>
+      <div><div style="font-weight:800;font-size:14px;">جودة مضمونة</div><div style="font-size:12px;color:var(--text-muted);">منتجات أصلية</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:28px;">📞</span>
+      <div><div style="font-weight:800;font-size:14px;">دعم العملاء</div><div style="font-size:12px;color:var(--text-muted);">متاح كل يوم</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Categories -->
+  <div style="margin-bottom:48px;">
+    <div class="section-title">🗂 تسوق حسب الفئة</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;">
+      {% for cat in categories %}
+      <a href="{% url 'shop_catalog' %}?cat={{ cat.pk }}" style="background:white;border:1.5px solid var(--border);border-radius:12px;padding:20px 16px;text-align:center;transition:all .2s;display:block;">
+        <div style="font-size:36px;margin-bottom:8px;">
+          {% if 'قلم' in cat.name or 'Pen' in cat.name %}🖊
+          {% elif 'دفتر' in cat.name or 'Note' in cat.name %}📓
+          {% elif 'قلم رصاص' in cat.name or 'Pencil' in cat.name %}✏️
+          {% elif 'لون' in cat.name or 'Crayon' in cat.name or 'Color' in cat.name %}🎨
+          {% elif 'مقص' in cat.name or 'Sciss' in cat.name %}✂️
+          {% elif 'آلة' in cat.name or 'Calc' in cat.name %}🔢
+          {% elif 'غراء' in cat.name or 'Glue' in cat.name %}🧲
+          {% elif 'ملف' in cat.name or 'Folder' in cat.name %}📁
+          {% elif 'مجلد' in cat.name or 'Binder' in cat.name %}📚
+          {% elif 'ورق' in cat.name or 'Paper' in cat.name %}📄
+          {% elif 'محفظة' in cat.name or 'Case' in cat.name %}🎒
+          {% else %}📦{% endif %}
+        </div>
+        <div style="font-size:13px;font-weight:800;color:var(--text);">{{ cat.name }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Featured Products -->
+  <div style="margin-bottom:48px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="section-title" style="margin-bottom:0;flex:1;">⭐ منتجات مميزة</div>
+      <a href="{% url 'shop_catalog' %}" class="btn btn-outline btn-sm">عرض الكل ←</a>
+    </div>
+    <div class="product-grid">
+      {% for product in featured %}
+      <div class="product-card">
+        <div class="product-img">
+          {% if 'قلم' in product.name or 'Pen' in product.name %}🖊
+          {% elif 'دفتر' in product.name or 'Note' in product.name %}📓
+          {% elif 'رصاص' in product.name or 'Pencil' in product.name %}✏️
+          {% elif 'لون' in product.name or 'Color' in product.name or 'Crayon' in product.name %}🎨
+          {% elif 'مقص' in product.name or 'Sciss' in product.name %}✂️
+          {% elif 'آلة' in product.name or 'Calc' in product.name %}🔢
+          {% elif 'غراء' in product.name or 'Glue' in product.name %}🧲
+          {% elif 'ملف' in product.name or 'Folder' in product.name %}📁
+          {% elif 'ورق' in product.name or 'Paper' in product.name %}📄
+          {% elif 'محفظة' in product.name or 'Case' in product.name %}🎒
+          {% else %}📦{% endif %}
+          {% if product.stock_quantity < 20 %}<span class="product-badge">كمية محدودة</span>{% endif %}
+        </div>
+        <div class="product-info">
+          <div class="product-cat">{{ product.category.name|default:"قرطاسية" }}</div>
+          <div class="product-name">{{ product.name }}</div>
+          <div class="product-price">{{ product.price|floatformat:0 }} <small>د.ج</small></div>
+          <div class="product-footer">
+            <button class="btn-add" onclick="addToCartAjax({{ product.pk }}, '{{ product.name|escapejs }}')">+ أضف للسلة</button>
+            <a href="{% url 'product_detail' product.pk %}" class="btn-view">عرض</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Promo Banner -->
+  <div style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:16px;padding:40px;display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;color:white;">
+    <div>
+      <div style="font-size:28px;font-weight:900;margin-bottom:8px;">🚚 🏙️ توصيل سريع داخل متليلي الشعانبة</div>
+      <div style="font-size:16px;opacity:.9;">اطلب الآن واستلم طلبك في أسرع وقت داخل متليلي الشعانبة</div>
+    </div>
+    <a href="{% url 'shop_catalog' %}" class="btn" style="background:white;color:#d97706;white-space:nowrap;font-size:16px;padding:14px 28px;border-radius:50px;">تسوق الآن</a>
+  </div>
+
+  <!-- New Arrivals -->
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div class="section-title" style="margin-bottom:0;flex:1;">🆕 وصل حديثاً</div>
+      <a href="{% url 'shop_catalog' %}?sort=newest" class="btn btn-outline btn-sm">عرض الكل ←</a>
+    </div>
+    <div class="product-grid">
+      {% for product in new_arrivals %}
+      <div class="product-card">
+        <div class="product-img">
+          {% if 'قلم' in product.name %}🖊{% elif 'دفتر' in product.name %}📓{% elif 'رصاص' in product.name %}✏️{% elif 'لون' in product.name or 'Crayon' in product.name %}🎨{% elif 'مقص' in product.name %}✂️{% elif 'آلة' in product.name %}🔢{% else %}📦{% endif %}
+          <span class="product-badge" style="background:var(--success);">جديد</span>
+        </div>
+        <div class="product-info">
+          <div class="product-cat">{{ product.category.name|default:"قرطاسية" }}</div>
+          <div class="product-name">{{ product.name }}</div>
+          <div class="product-price">{{ product.price|floatformat:0 }} <small>د.ج</small></div>
+          <div class="product-footer">
+            <button class="btn-add" onclick="addToCartAjax({{ product.pk }}, '{{ product.name|escapejs }}')">+ أضف للسلة</button>
+            <a href="{% url 'product_detail' product.pk %}" class="btn-view">عرض</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

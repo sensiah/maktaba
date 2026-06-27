@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}متجر القرطاسية{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --primary:#2563eb;--primary-dark:#1d4ed8;--primary-light:#eff6ff;
+      --accent:#f59e0b;--accent-dark:#d97706;
+      --text:#1e293b;--text-muted:#64748b;--text-light:#94a3b8;
+      --bg:#f8fafc;--white:#fff;--border:#e2e8f0;
+      --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+      --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:0 4px 16px rgba(0,0,0,.10);
+      --radius:12px;
+    }
+    body{font-family:'Cairo',system-ui,sans-serif;background:var(--bg);color:var(--text);direction:rtl;}
+    a{text-decoration:none;color:inherit;}
+    img{max-width:100%;}
+
+    /* ── Navbar ── */
+    .navbar{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:var(--shadow);}
+    .nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:16px;height:68px;}
+    .nav-logo{font-size:22px;font-weight:900;color:var(--primary);white-space:nowrap;display:flex;align-items:center;gap:8px;}
+    .nav-logo span{color:var(--accent);}
+    .nav-search{flex:1;max-width:420px;position:relative;}
+    .nav-search input{width:100%;padding:9px 16px 9px 44px;border:1.5px solid var(--border);border-radius:50px;font-size:14px;font-family:inherit;outline:none;background:#f8fafc;transition:border-color .2s;}
+    .nav-search input:focus{border-color:var(--primary);background:var(--white);}
+    .nav-search .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:16px;pointer-events:none;}
+    .nav-links{display:flex;align-items:center;gap:6px;margin-right:auto;}
+    .nav-link{padding:8px 14px;border-radius:8px;font-size:14px;font-weight:700;color:var(--text-muted);transition:all .15s;white-space:nowrap;}
+    .nav-link:hover,.nav-link.active{background:var(--primary-light);color:var(--primary);}
+    .cart-btn{display:flex;align-items:center;gap:8px;background:var(--primary);color:white;padding:9px 18px;border-radius:50px;font-size:14px;font-weight:800;transition:background .15s;position:relative;}
+    .cart-btn:hover{background:var(--primary-dark);}
+    .cart-badge{background:var(--accent);color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;}
+
+    /* ── Category bar ── */
+    .cat-bar{background:var(--white);border-bottom:1px solid var(--border);}
+    .cat-bar-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+    .cat-bar-inner::-webkit-scrollbar{display:none;}
+    .cat-pill{padding:8px 16px;border-radius:50px;font-size:13px;font-weight:700;color:var(--text-muted);white-space:nowrap;transition:all .15s;cursor:pointer;}
+    .cat-pill:hover{background:var(--primary-light);color:var(--primary);}
+    .cat-pill.active{background:var(--primary);color:white;}
+
+    /* ── Page container ── */
+    .container{max-width:1200px;margin:0 auto;padding:32px 24px;}
+
+    /* ── Product card ── */
+    .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;}
+    .product-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;transition:all .2s;display:flex;flex-direction:column;}
+    .product-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+    .product-img{height:180px;background:linear-gradient(135deg,#f0f4ff,#e8edff);display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;}
+    .product-badge{position:absolute;top:10px;right:10px;background:var(--accent);color:white;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800;}
+    .product-info{padding:16px;flex:1;display:flex;flex-direction:column;}
+    .product-cat{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+    .product-name{font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.4;flex:1;}
+    .product-price{font-size:18px;font-weight:900;color:var(--primary);}
+    .product-price small{font-size:12px;font-weight:600;color:var(--text-muted);}
+    .product-footer{display:flex;gap:8px;margin-top:12px;}
+    .btn-add{flex:1;background:var(--primary);color:white;border:none;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .15s;}
+    .btn-add:hover{background:var(--primary-dark);}
+    .btn-view{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;}
+    .btn-view:hover{background:var(--border);}
+
+    /* ── Buttons ── */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;font-size:15px;font-weight:800;cursor:pointer;border:none;transition:all .15s;font-family:inherit;}
+    .btn-primary{background:var(--primary);color:white;}
+    .btn-primary:hover{background:var(--primary-dark);}
+    .btn-outline{background:transparent;color:var(--primary);border:2px solid var(--primary);}
+    .btn-outline:hover{background:var(--primary-light);}
+    .btn-danger{background:var(--danger);color:white;}
+    .btn-success{background:var(--success);color:white;}
+    .btn-sm{padding:6px 14px;font-size:13px;}
+
+    /* ── Section titles ── */
+    .section-title{font-size:22px;font-weight:900;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .section-title::after{content:'';flex:1;height:2px;background:linear-gradient(to left,var(--border),transparent);}
+
+    /* ── Forms ── */
+    .form-group{margin-bottom:18px;}
+    .form-label{display:block;font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;}
+    .form-control{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:var(--white);color:var(--text);transition:border-color .15s;text-align:right;}
+    .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .form-error{color:var(--danger);font-size:12px;margin-top:4px;font-weight:700;}
+
+    /* ── Alert ── */
+    .alert{padding:14px 18px;border-radius:10px;margin-bottom:20px;font-weight:700;font-size:14px;}
+    .alert-success{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+    .alert-error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
+    .alert-info{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;}
+
+    /* ── Empty state ── */
+    .empty-state{text-align:center;padding:80px 20px;color:var(--text-muted);}
+    .empty-state .icon{font-size:64px;margin-bottom:16px;}
+    .empty-state h3{font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px;}
+    .empty-state p{font-size:15px;}
+
+    /* ── Badge ── */
+    .status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;}
+    .status-pending{background:#fef3c7;color:#92400e;}
+    .status-confirmed{background:#dbeafe;color:#1e40af;}
+    .status-processing{background:#ede9fe;color:#5b21b6;}
+    .status-shipped{background:#d1fae5;color:#065f46;}
+    .status-delivered{background:#d1fae5;color:#065f46;}
+    .status-cancelled{background:#fee2e2;color:#991b1b;}
+
+    /* ── Footer ── */
+    .footer{background:var(--text);color:rgba(255,255,255,.7);margin-top:80px;}
+    .footer-inner{max-width:1200px;margin:0 auto;padding:48px 24px 24px;}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+    .footer-brand{font-size:22px;font-weight:900;color:white;margin-bottom:12px;}
+    .footer-brand span{color:var(--accent);}
+    .footer-desc{font-size:14px;line-height:1.7;}
+    .footer-title{font-size:15px;font-weight:800;color:white;margin-bottom:14px;}
+    .footer-links{list-style:none;display:flex;flex-direction:column;gap:8px;}
+    .footer-links a{font-size:14px;color:rgba(255,255,255,.6);transition:color .15s;}
+    .footer-links a:hover{color:white;}
+    .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:20px;text-align:center;font-size:13px;}
+
+    /* ── Toast ── */
+    #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#1e293b;color:white;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:700;z-index:9999;transition:transform .3s;pointer-events:none;}
+    #toast.show{transform:translateX(-50%) translateY(0);}
+
+    @media(max-width:768px){
+      .footer-grid{grid-template-columns:1fr 1fr;}
+      .nav-search{display:none;}
+      .product-grid{grid-template-columns:repeat(2,1fr);}
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="{% url 'shop_home' %}" class="nav-logo">🖊 متجر<span>القرطاسية</span></a>
+    <form class="nav-search" method="get" action="{% url 'shop_catalog' %}">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" placeholder="ابحث عن منتج..." value="{{ request.GET.q|default:'' }}">
+    </form>
+    <div class="nav-links">
+      <a href="{% url 'shop_home' %}" class="nav-link {% if request.resolver_match.url_name == 'shop_home' %}active{% endif %}">الرئيسية</a>
+      <a href="{% url 'shop_catalog' %}" class="nav-link {% if request.resolver_match.url_name == 'shop_catalog' %}active{% endif %}">المنتجات</a>
+      <a href="{% url 'order_track' %}" class="nav-link {% if request.resolver_match.url_name == 'order_track' %}active{% endif %}">تتبع طلبي</a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}" class="nav-link">⚙ الإدارة</a>
+      {% endif %}
+    </div>
+    <a href="{% url 'cart_view' %}" class="cart-btn">
+      🛒 السلة
+      <span class="cart-badge" id="cart-badge">{{ cart_count }}</span>
+    </a>
+  </div>
+</nav>
+
+<div id="toast"></div>
+
+{% block content %}{% endblock %}
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">🖊 متجر<span>القرطاسية</span></div>
+        <p class="footer-desc">متجرك الأول للقرطاسية والمستلزمات المكتبية والمدرسية في متليلي الشعانبة. جودة عالية بأسعار مناسبة مع توصيل سريع داخل المدينة. جودة عالية بأسعار مناسبة مع توصيل داخل المدينة.</p>
+      </div>
+      <div>
+        <div class="footer-title">روابط سريعة</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'shop_home' %}">الرئيسية</a></li>
+          <li><a href="{% url 'shop_catalog' %}">جميع المنتجات</a></li>
+          <li><a href="{% url 'cart_view' %}">سلة التسوق</a></li>
+          <li><a href="{% url 'order_track' %}">تتبع الطلب</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">الفئات</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'shop_catalog' %}?cat=1">أقلام ومحافظ</a></li>
+          <li><a href="{% url 'shop_catalog' %}">دفاتر وكراسات</a></li>
+          <li><a href="{% url 'shop_catalog' %}">ألوان وأقلام رسم</a></li>
+          <li><a href="{% url 'shop_catalog' %}">مستلزمات مكتبية</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">تواصل معنا</div>
+        <ul class="footer-links">
+          <li>📞 0555 000 000</li>
+          <li>📧 info@maktaba.dz</li>
+          <li>📍 متليلي الشعانبة</li>
+          <li>⏰ 8ص – 6م</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2025 متجر القرطاسية — جميع الحقوق محفوظة</div>
+  </div>
+</footer>
+
+<script>
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+function addToCartAjax(pk, name) {
+  fetch(`/cart/add/${pk}/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': '{{ csrf_token }}', 'X-Requested-With': 'XMLHttpRequest'},
+    body: new URLSearchParams({qty: 1})
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      document.getElementById('cart-badge').textContent = d.cart_count;
+      showToast(`✓ تمت إضافة «${name}» للسلة`);
+    }
+  });
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
